@@ -1,0 +1,164 @@
+{/* Blueprint 06 (the twelve case sections), 05 §Prosa en MDX and 07-current-projects/quantum-erp-rental.md.
+    Careful draft translated from es.mdx (the source); it must say the same thing. Reviewed in F9. */}
+
+<Section id="context">
+
+Quantum is the internal operations platform of Brandex, an experiences and events company with several business units: furniture and asset rental for events, custody of branded materials, personalization, a marketplace, services and an internal employee portal. The units run on the same platform as business modules declared in YAML, with no code of their own.
+
+The architecture documentation puts it this way: “Quantum is not an ERP. An ERP manages data. Quantum manages operations.”
+
+The backend went through two generations. The first (V1), between April and July 2026, in Kotlin and NestJS. The second (V2), from August 2026, in Java 21 and Spring Boot. V1 was frozen as a reference.
+
+</Section>
+
+<Section id="problem">
+
+V1 had stability, maintainability and performance problems. The V2 architecture documentation describes where they came from:
+
+- It was a monolith under another name: the gateway sent almost every route to the same central service.
+- Kafka was configured but inactive. If the notification service failed, the process failed with it, with no retry.
+- Each user's access level was decided by the frontend, from a value the backend never issued.
+- The internal portal ran separately, with its own identity, currency, notifications and audit.
+
+Instead of piling more complexity on that base, I redesigned the platform as V2: I ported to Java the logic of the engines that already worked and built an in-house SDK and runtime around them, with a modular, documented architecture.
+
+</Section>
+
+<Section id="role">
+
+Quantum started as my own initiative. The formal project lead was the interface designer; I took on the technical and technology direction in a team of three: I defined tasks, reviewed and audited the code and cleared technical blockers. We reported to the company's leadership.
+
+I designed the architecture and implemented the backend platform: runtime and SDK, identity and authorization, gateway, workflow engine and CI/CD. I was the only author of the backend for its first five months and then integrated the team's work, which added the orders domain and the data migration. I documented the architecture in a blueprint and 24 ADRs.
+
+I work with AI assistance to propose alternatives and draft; the decisions, their validation and the responsibility are mine.
+
+<Metric id="backend-commits" />
+
+</Section>
+
+<Section id="constraints">
+
+- A team of three. Until September 2026, the backend had a single author.
+- A single server with Docker Compose and a self-hosted CI runner.
+- Redis was already running in production for rate limiting, which weighed against also operating Kafka.
+- Several business units, with different needs, on one platform.
+
+</Section>
+
+<Section id="architecture">
+
+<Diagram id="platform" />
+
+The gateway is the single entry point. It validates the token signature, the session version and the per-tenant rate limit; internal services do not expose their ports.
+
+Behind it sits the platform runtime. Every request goes through the same pipeline: declared module, engine, capability, context, authorization, execution model and dispatch. The runtime also hosts the workflow engine.
+
+I designed an in-house SDK and runtime so that the business engines would not know about each other: the runtime resolves each request, applies authorization and orchestrates execution. The engines (inventory, store, currency, projects, creative and organization) only receive calls from the runtime.
+
+The identity service is the source of truth for identity and authorization, and it decides every permission (PDP). Platform services such as audit, notifications and analytics receive events over Redis Streams. Each service has its own logical database on a single PostgreSQL instance and runs its own migrations.
+
+<Metric id="services" /> <Metric id="libraries" /> <Metric id="modules" />
+
+</Section>
+
+<Section id="decisions">
+
+<Decision id="sdk-runtime" />
+
+<Decision id="processes" />
+
+<Decision id="redis-streams" />
+
+<Decision id="server-authz" />
+
+</Section>
+
+<Section id="tradeoffs">
+
+- I chose Redis Streams so as not to operate Kafka; the cost is durability: with the configuration reviewed, a Redis crash can lose the most recent events.
+- Events are published after the operation commits, on a best-effort basis. If publishing fails, the business operation carries on and that event is lost: there is no outbox for domain events.
+- The 15 processes run on a single server: a failure or a deployment is isolated per process, but not per machine.
+- Authorization fails closed: if the PDP does not respond, nothing that needs permissions works.
+
+</Section>
+
+<Section id="security">
+
+Every operation goes through the same authorization, whether it comes from the frontend or from a workflow step.
+
+<Diagram id="pipeline" />
+
+- Access tokens are short-lived JWTs signed with RS256; the public key is published through a JWKS endpoint. The token carries a session version that the gateway validates.
+- Refresh tokens are stored as hashes and rotate atomically. If someone reuses one that has already rotated, all of its sessions are revoked and an audit event is recorded.
+- Passwords are stored with Argon2id.
+- The PDP fails closed. The PEP uses a short-lived decision cache; if the cache fails, it queries the PDP: it never allows or denies on its own.
+- Every workflow step goes through the same PEP as a call from the frontend. That was not the case at first: the engine spike found it as a way around authorization, and it was closed before anything was built on top.
+- Audit is central and fed by events. Provider webhooks are accepted only with a verified signature.
+- Internal services authenticate to each other with per-service credentials. The design aimed for short-lived signed tokens (internal zero trust), which remained pending.
+
+</Section>
+
+<Section id="failure-modes">
+
+I only include failures whose behaviour is in the code. The detection column describes how the system itself notices.
+
+<FailureModes />
+
+</Section>
+
+<Section id="implementation">
+
+### Workflow engine
+
+The platform's workflow engine lives inside the runtime as its own package; it is not a separate service. The business flow built on it is benefit redemption in the internal portal: reserve stock, freeze balance, wait for an administrator's decision, then capture or release. No engine knows about another: the workflow is the only thing that knows the stock reservation and the frozen balance belong to the same order.
+
+<Diagram id="workflow" />
+
+- Workflows are written in a versioned YAML DSL that is compiled and validated on load: an invalid workflow is not registered.
+- There are four step types: `execute`, `condition`, `parallel` and `wait`. `parallel` is not parallel: it queues the branches and runs them in sequence.
+- When an event `wait` is reached, the state is saved in Redis, the execution waits in PostgreSQL and a subscription is registered. The `wait` filters are resolved at suspension, so only the matching execution wakes up; if a filter resolves to nothing, the step fails.
+- If a later step fails and asks for compensation, the compensable steps are undone in reverse order. A failure during compensation is not retried.
+- A periodic process marks as expired the executions that run past their deadline.
+
+Before building on top, a spike showed that the engine had never run end to end. It found three bugs: a failed step ended up as completed, the event listener never started and there were duplicate events. They were fixed, and the authorization, correlation and transport gaps were closed before touching balance or stock.
+
+<Metric id="engine-rules" /> <Metric id="engine-tests" />
+
+### Designed, not implemented
+
+- Short-lived signed tokens between services (internal zero trust). Today services authenticate with per-service credentials.
+- The SAGA, human approval and AI decision execution models: they are defined but have no execution strategy. Human approval is modelled today as an event `wait`.
+- Retry policies: the DSL accepts them, but the executor does not apply them.
+- Timer `wait`: it suspends the execution, but nothing resumes it.
+- Scheduled triggers and real parallelism.
+
+### Delivery
+
+CI builds and tests the whole backend on every push and pull request. Deployment has gates: it checks that every service is in the matrix and in the Compose files, applies all migrations to an empty PostgreSQL 16, runs `mvn verify`, builds the 15 images in parallel, deploys and waits until every service is healthy. The architecture tests run in the same CI.
+
+A deploy stopped coming up. The 352 tests passed because none of them touched real SQL, and two migrations did not apply to an empty database. I diagnosed it and added a CI gate that applies every migration to a clean Postgres. It did not affect users.
+
+Another deployment failed on a third-party container image that was no longer available. The first time, the registry was switched. When it happened again, I diagnosed that the authorization error was not about permissions but that the repository no longer existed, and I removed the dependency by mirroring the image in a registry of our own.
+
+<Metric id="migrations" /> <Metric id="tests" />
+
+</Section>
+
+<Section id="result">
+
+Implemented and deployed. V2 ships through the pipeline and its gates, and benefit redemption in the internal portal was implemented end to end on the workflow engine and verified against the deployed environment. At handover, the platform was partially integrated with the ERP and with part of the internal portal. I handed the project over at the end of September 2026.
+
+I did not measure performance with a reproducible methodology. In operation, V2 was more stable and responded better than V1, at the cost of somewhat higher memory use.
+
+</Section>
+
+<Section id="lessons">
+
+V1 taught me the cost of coupling. V2 taught me that decoupling does not necessarily mean distributing everything. Today I would keep the boundaries, but decide distribution based on operational needs.
+
+- **Not every decoupling needs to be a process.** Today I would keep the boundaries between the engines and the Runtime, but I would not necessarily split every engine into its own process from the start. I would first keep the limits with a modular monolith and architecture tests, and distribute components when there was a real need for isolation, scalability or independent deployment.
+- **If a migration is not tested in CI, it is not really tested.** Tests can be passing and still give a false sense of security. After the migrations incident, I understood that a clean database and the real initialization process also have to be part of automated validation. If the system cannot come up correctly from scratch in CI, I do not yet consider the deployment truly validated.
+- **Measure before claiming that something improved.** V2 worked better in operation and the difference was obvious, but I did not set up a reproducible methodology to compare V1 and V2. Today I would measure latency, errors, resource use and capacity under comparable conditions, before and after. A perceived improvement can be real, but without measurement it should not be presented as a benchmark.
+- **Technical history is part of the product too.** Pushing V2 as a single commit of about 30,000 lines lost much of the incremental history of how the design evolved. Today I would keep smaller, coherent commits, so that architectural decisions, changes and their reasons can be reconstructed from the history.
+
+</Section>

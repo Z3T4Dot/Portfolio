@@ -1,0 +1,152 @@
+/*
+ * Tokens de diseño: fuente de verdad visual (docs/blueprint/03-visual-ux.md).
+ * Los componentes nunca usan hex ni valores sueltos; solo estos tokens.
+ *
+ * Tema: por defecto el del sistema. `data-theme` en <html> fuerza uno u otro. La paleta oscura
+ * aparece dos veces (media query y data-theme) porque CSS no permite compartir el bloque;
+ * styles/__tests__/tokens.test.ts falla si las dos copias se desincronizan.
+ * Contraste (texto normal ≥ 4.5:1 sobre --paper y --surface en ambos temas) verificado en el
+ * mismo test.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Color · claro */
+  --paper: #f4f5f7;
+  --surface: #ffffff;
+  --surface-2: #eceef1;
+  --ink: #121417;
+  --muted: #5b616e;
+  --line: #d9dce2;
+  --line-strong: #b9bec8; /* decorativo: no alcanza 3:1, nunca como único límite de un control */
+  --line-ui: #7c8290; /* ≥ 3:1 (WCAG 1.4.11): bordes de controles y aristas de diagramas */
+  --accent: #2742e6;
+  --accent-wash: #e6eafd;
+  --ok: #1d7a4c;
+  --warn: #995900;
+  --threat: #c8322a;
+
+  /* Tipografía · familias (fonts.css) */
+  --font-sans: 'Archivo', 'Archivo Fallback', system-ui, sans-serif;
+  --font-mono: 'Fragment Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  /* Tipografía · escala 1.25 en rem para respetar el tamaño de letra del usuario (16px = 1rem) */
+  --step--1: 0.8125rem; /* 13px · secundario */
+  --step-0: 1.0625rem; /* 17px · texto */
+  --step-1: 1.3125rem; /* 21px · h3 */
+  --step-2: 1.625rem; /* 26px */
+  --step-3: 2.0625rem; /* 33px · h2 */
+  --step-4: clamp(2.25rem, 4.5vw, 3.25rem); /* h1 */
+  --step-display: clamp(3rem, 9vw, 7rem); /* nombre en la Home */
+
+  /* Tipografía · ancho (eje wdth de Archivo) */
+  --width-display: 125%;
+  --width-h1: 125%;
+  --width-h2: 112%;
+  --width-h3: 100%;
+  --width-text: 100%;
+
+  /* Tipografía · peso */
+  --weight-display: 800;
+  --weight-h1: 750;
+  --weight-h2: 700;
+  --weight-h3: 650;
+  --weight-text: 400;
+
+  /* Tipografía · interlineado y tracking */
+  --leading-display: 0.92;
+  --leading-h1: 1.05;
+  --leading-text: 1.6;
+  --leading-secondary: 1.45;
+  --tracking-display: -0.03em;
+
+  /* Medida del texto */
+  --measure: 68ch;
+  --measure-lede: 60ch;
+
+  /* Espaciado · base 4px */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+
+  /* Layout · breakpoints de referencia (no se pueden usar como variables en media queries):
+     480 / 768 / 1024 / 1280. Mobile first. */
+  --container-max: 1200px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --grid-gap: 16px;
+
+  /* Radios */
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --radius-l: 14px;
+  --radius-pill: 999px;
+
+  /* Foco */
+  --focus-width: 2px;
+  --focus-offset: 3px;
+
+  /* Movimiento: 120–240ms, solo como respuesta a una acción o a un cambio de estado real */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration-press: 120ms; /* botón */
+  --duration-quick: 150ms; /* enlace, nodo de diagrama, cambio de ruta */
+  --duration-expand: 200ms; /* desplegar o plegar */
+
+  /* Objetivos táctiles: 44px en acciones principales (03, WCAG 2.2) */
+  --target-min: 44px;
+
+  /* Header fijo (03): fondo --paper al 90 % con blur; su alto reserva espacio al enfocar (WCAG 2.4.11) */
+  --header-height: 64px;
+  --header-backdrop: blur(12px);
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --grid-gap: 24px;
+  }
+}
+
+/* Color · oscuro, según el sistema (salvo que el usuario haya elegido claro) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --paper: #0c0d10;
+    --surface: #15171c;
+    --surface-2: #1c1f26;
+    --ink: #e8eaee;
+    --muted: #9298a5;
+    --line: #272b34;
+    --line-strong: #3a3f4b;
+    --line-ui: #6b7280;
+    --accent: #8fa0ff;
+    --accent-wash: #1a2150;
+    --ok: #4cc38a;
+    --warn: #e3a33b;
+    --threat: #ff7468;
+  }
+}
+
+/* Color · oscuro, elegido por el usuario */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #0c0d10;
+  --surface: #15171c;
+  --surface-2: #1c1f26;
+  --ink: #e8eaee;
+  --muted: #9298a5;
+  --line: #272b34;
+  --line-strong: #3a3f4b;
+  --line-ui: #6b7280;
+  --accent: #8fa0ff;
+  --accent-wash: #1a2150;
+  --ok: #4cc38a;
+  --warn: #e3a33b;
+  --threat: #ff7468;
+}

@@ -1,0 +1,31 @@
+{/* FIXTURE. Prosa ficticia para content.test.ts. No es contenido publicado. */}
+
+<Section id="context">
+Este caso no existe. Sirve para comprobar que cada `<Section>` del MDX coincide con `meta.sections`.
+</Section>
+
+<Section id="problem">
+El bloque de código de abajo menciona una sección que no está en `meta.sections`. La verificación debe ignorarlo porque
+es código, no una sección.
+
+```mdx
+<Section id="security">No cuenta</Section>
+```
+
+</Section>
+
+<Section id="decisions">
+<Decision id="fixture-decision">
+Elegí un fixture mínimo porque basta para probar la paridad; el costo es que no cubre todas las secciones.
+</Decision>
+</Section>
+
+<Section id="result">
+La verificación de contenido corre sobre esta entidad en cada PR.
+
+<Metric id="fixture-number" />
+</Section>
+
+<Section id="lessons">
+- Un chequeo solo cuenta si puede fallar.
+</Section>

@@ -1,0 +1,33 @@
+/* Blueprint 03: ES|EN, el activo marcado con texto y subrayado (no solo con color), 44px de alto. */
+.switch {
+  display: inline-flex;
+  align-items: center;
+}
+
+.link {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--target-min);
+  min-block-size: var(--target-min);
+  padding-inline: var(--space-2);
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: var(--weight-h3);
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--ink);
+  text-decoration-line: underline;
+}
+
+.link[aria-current] {
+  color: var(--ink);
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--accent);
+}
+
+.link + .link {
+  border-inline-start: 1px solid var(--line-ui);
+}

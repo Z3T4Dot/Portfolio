@@ -1,0 +1,85 @@
+/*
+ * Blueprint 03: header fijo con fondo --paper al 90 % y blur; mobile first. Por debajo de 768px el
+ * nav y los controles viven en MobileNav.
+ */
+.header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+  border-block-end: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  backdrop-filter: var(--header-backdrop);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-block-size: var(--header-height);
+  max-inline-size: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.name {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--target-min);
+  margin-inline-end: auto;
+  color: var(--ink);
+  font-weight: var(--weight-h2);
+  font-stretch: var(--width-h2);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav,
+.controls {
+  display: none;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--target-min);
+  padding-inline: var(--space-2);
+  color: var(--ink);
+  font-size: var(--step--1);
+  text-decoration: none;
+}
+
+.link:hover,
+.link[aria-current] {
+  text-decoration-line: underline;
+}
+
+.link[aria-current] {
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+
+@media (min-width: 768px) {
+  .nav {
+    display: block;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+}
+
+@media (min-width: 1024px) {
+  .link {
+    padding-inline: var(--space-3);
+    font-size: var(--step-0);
+  }
+}

@@ -1,0 +1,33 @@
+/* Blueprint 03 §Componentes visuales (Metric) y §Tipografía (números tabulares). Sin caja ni sombra:
+   el número manda y la fuente va en texto secundario. */
+.metric {
+  display: inline-grid;
+  align-content: start;
+  gap: var(--space-1);
+  inline-size: min(100%, 15rem);
+  vertical-align: top;
+}
+
+.value {
+  font-size: var(--step-2);
+  font-stretch: var(--width-h2);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-h2);
+  line-height: 1.1;
+}
+
+.label {
+  font-size: var(--step-0);
+  line-height: var(--leading-secondary);
+}
+
+.source {
+  color: var(--muted);
+  font-size: var(--step--1);
+  line-height: var(--leading-secondary);
+}
+
+.kind {
+  color: var(--ink);
+  font-weight: 600;
+}

@@ -1,0 +1,26 @@
+/* Blueprint 12: página mínima de `/`; se ve un instante antes de redirigir (o siempre, sin JS). */
+.main {
+  display: grid;
+  gap: var(--space-6);
+  max-inline-size: var(--container-max);
+  margin-inline: auto;
+  padding: var(--space-9) var(--gutter);
+}
+
+.choices {
+  display: grid;
+  gap: var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.choices a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--target-min);
+  font-size: var(--step-2);
+}
+
+.role {
+  color: var(--muted);
+}

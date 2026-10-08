@@ -1,0 +1,46 @@
+/* Blueprint 03 §Componentes visuales (StatusTag, ClassificationTag) y §Radios (--radius-s en
+   etiquetas). Los colores semánticos solo marcan un estado real, y siempre junto al texto. */
+.status,
+.classification {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-s);
+  font-size: var(--step--1);
+  line-height: var(--leading-secondary);
+}
+
+.status {
+  border: 1px solid var(--line-ui);
+  color: var(--ink);
+}
+
+.status::before {
+  content: '';
+  inline-size: var(--space-2);
+  block-size: var(--space-2);
+  border-radius: var(--radius-pill);
+}
+
+.status[data-state='real']::before {
+  background: var(--ok);
+}
+
+.status[data-state='experiment']::before {
+  background: var(--warn);
+}
+
+.status[data-state='planned'] {
+  border-color: var(--muted);
+  color: var(--muted);
+}
+
+.status[data-state='planned']::before {
+  border: 1px solid var(--muted);
+}
+
+.classification {
+  padding-inline: 0;
+  color: var(--muted);
+}

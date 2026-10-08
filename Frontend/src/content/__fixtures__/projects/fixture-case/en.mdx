@@ -1,0 +1,31 @@
+{/* FIXTURE. Fictional prose for content.test.ts. Not published content. */}
+
+<Section id="context">
+This case does not exist. It checks that every `<Section>` in the MDX matches `meta.sections`.
+</Section>
+
+<Section id="problem">
+The code block below mentions a section that is not in `meta.sections`. Verification must ignore it because it is code,
+not a section.
+
+```mdx
+<Section id="security">Does not count</Section>
+```
+
+</Section>
+
+<Section id="decisions">
+<Decision id="fixture-decision">
+I chose a minimal fixture because it is enough to test parity; the cost is that it does not cover every section.
+</Decision>
+</Section>
+
+<Section id="result">
+Content verification runs on this entity in every PR.
+
+<Metric id="fixture-number" />
+</Section>
+
+<Section id="lessons">
+- A check only counts if it can fail.
+</Section>

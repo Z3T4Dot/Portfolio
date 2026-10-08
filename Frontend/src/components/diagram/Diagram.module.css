@@ -1,0 +1,235 @@
+/* Blueprint 03 §Diagramas (nodos --radius-m con borde 1px --line-ui, etiqueta Archivo 14px, aristas de
+   1px --line-ui con flecha, fronteras discontinuas; el acento solo marca el elemento activo),
+   §Componentes visuales (Figure: borde --line, --radius-l, fondo --surface), §Microinteracciones (nodo:
+   resalta nodo y aristas, 150ms) y §Responsive (variante vertical en móvil). */
+.figure {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: var(--surface);
+}
+
+.caption {
+  max-inline-size: var(--measure);
+  color: var(--muted);
+  font-size: var(--step--1);
+  line-height: var(--leading-secondary);
+}
+
+.title {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.note {
+  color: var(--muted);
+}
+
+.canvas {
+  display: grid;
+  justify-items: center;
+}
+
+.wide,
+.narrow {
+  inline-size: 100%;
+  block-size: auto;
+  font-family: var(--font-sans);
+  overflow: visible;
+}
+
+.wide {
+  display: none;
+}
+
+/* La variante vertical se diseña para 360 unidades: no se estira más allá de ~1,3×. */
+.narrow {
+  max-inline-size: 30rem;
+}
+
+@media (min-width: 768px) {
+  .wide {
+    display: block;
+  }
+
+  .narrow {
+    display: none;
+  }
+}
+
+.boundary {
+  fill: none;
+  stroke: var(--line-ui);
+  stroke-dasharray: 6 5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Tamaños de texto en unidades del viewBox: los mismos que usa layout.ts (TYPE) para medir. */
+.boundaryLabel,
+.edgeLabel {
+  fill: var(--muted);
+  font-size: 12px;
+}
+
+.edge {
+  fill: none;
+  stroke: var(--line-ui);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+  transition: stroke var(--duration-quick) var(--ease);
+}
+
+.edge[data-active] {
+  stroke: var(--accent);
+  stroke-width: 2px;
+}
+
+.arrow {
+  fill: var(--line-ui);
+}
+
+.arrowActive {
+  fill: var(--accent);
+}
+
+.labelBox {
+  fill: var(--surface);
+}
+
+.node {
+  cursor: pointer;
+}
+
+/* El anillo de foco propio sustituye al outline, que los navegadores no dibujan igual en SVG. */
+.node:focus {
+  outline: none;
+}
+
+.ring {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+}
+
+.node:focus-visible .ring {
+  stroke: var(--accent);
+}
+
+.box {
+  fill: var(--surface);
+  stroke: var(--line-ui);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+  transition:
+    fill var(--duration-quick) var(--ease),
+    stroke var(--duration-quick) var(--ease);
+}
+
+/* Almacenes, colas y configuración: tono hundido, sin color semántico (03 §Color). */
+.node[data-kind='datastore'] .box,
+.node[data-kind='queue'] .box,
+.node[data-kind='config'] .box,
+.node[data-kind='event'] .box {
+  fill: var(--surface-2);
+}
+
+.node[data-kind='client'] .box,
+.node[data-kind='outcome'] .box {
+  fill: var(--paper);
+}
+
+.node[data-active] .box {
+  fill: var(--accent-wash);
+  stroke: var(--accent);
+  stroke-width: 2px;
+}
+
+.nodeLabel {
+  fill: var(--ink);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.panel {
+  display: grid;
+  gap: var(--space-2);
+  min-block-size: 4.5rem;
+  max-inline-size: var(--measure);
+  padding-block-start: var(--space-3);
+  border-block-start: 1px solid var(--line);
+}
+
+.panelTitle {
+  font-weight: 600;
+}
+
+.kind {
+  margin-inline-start: var(--space-2);
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 400;
+}
+
+.panelSub {
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 600;
+  line-height: var(--leading-secondary);
+}
+
+.hint {
+  color: var(--muted);
+  font-size: var(--step--1);
+  line-height: var(--leading-secondary);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-1);
+  padding-inline-start: var(--space-5);
+}
+
+.alt {
+  display: grid;
+  gap: var(--space-3);
+  max-inline-size: var(--measure);
+}
+
+.alt[open] {
+  padding-block-end: var(--space-2);
+}
+
+.summary {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 24px;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.alt[open] > .summary {
+  margin-block-end: var(--space-2);
+}
+
+.alt > :not(.summary) + :not(.summary) {
+  margin-block-start: var(--space-1);
+}
+
+@media (min-width: 768px) {
+  .figure {
+    padding: var(--space-5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge,
+  .box {
+    transition: none;
+  }
+}

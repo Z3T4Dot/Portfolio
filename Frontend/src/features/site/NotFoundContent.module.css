@@ -1,0 +1,18 @@
+/* Blueprint 03: lista simple, separada con --line entre elementos; objetivos de 44px. */
+.exits {
+  display: grid;
+  max-inline-size: var(--measure-lede);
+  padding: 0;
+  list-style: none;
+}
+
+.exits > li + li {
+  border-block-start: 1px solid var(--line);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  min-block-size: var(--target-min);
+  font-size: var(--step-1);
+}

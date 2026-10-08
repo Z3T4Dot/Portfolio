@@ -1,0 +1,149 @@
+/* Blueprint 03 §Grid y layout (caso ≥ 1024px: índice fijo en columnas 1–3; cabecera, "En 30 segundos" y
+   secciones en 4–11 con máx. 68ch; figuras y diagramas a ancho completo en 4–12), §Espaciado (secciones
+   separadas con espacio, no con cajas: --space-8 en móvil, --space-9 en desktop), §Tipografía (h2 al
+   112 %, h3 al 100 %, texto a 68ch) y "Qué evitar" (sin eyebrows, sin numeración decorativa). */
+.case {
+  display: grid;
+  gap: var(--space-7);
+}
+
+.header {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.title {
+  max-inline-size: var(--measure-lede);
+}
+
+.kind {
+  max-inline-size: var(--measure-lede);
+  color: var(--muted);
+  font-size: var(--step-1);
+  line-height: var(--leading-secondary);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.kindTag {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--line-ui);
+  border-radius: var(--radius-s);
+  font-size: var(--step--1);
+  line-height: var(--leading-secondary);
+}
+
+.note {
+  max-inline-size: var(--measure);
+  color: var(--muted);
+  font-size: var(--step--1);
+  line-height: var(--leading-secondary);
+}
+
+.summary {
+  display: grid;
+  gap: var(--space-3);
+  max-inline-size: var(--measure);
+}
+
+.summaryTitle {
+  font-size: var(--step-1);
+  font-stretch: var(--width-h3);
+  font-weight: var(--weight-h3);
+}
+
+.summary p {
+  font-size: var(--step-1);
+  line-height: 1.5;
+}
+
+.body {
+  display: grid;
+  gap: var(--space-8);
+  min-inline-size: 0;
+}
+
+/* Cada sección del MDX (mdx.tsx). El foco llega aquí desde el índice; no es un control. */
+.section {
+  display: grid;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.section:focus {
+  outline: none;
+}
+
+.section > :where(p, ul, ol, h3, h4, blockquote, pre) {
+  max-inline-size: var(--measure);
+}
+
+.section > h3 {
+  margin-block-start: var(--space-5);
+}
+
+.section :where(ul, ol):not([class]) {
+  display: grid;
+  gap: var(--space-2);
+  padding-inline-start: var(--space-5);
+}
+
+.section :where(p, li) > code {
+  padding: 0.05em 0.3em;
+  border-radius: var(--radius-s);
+  background: var(--surface-2);
+}
+
+/* Métricas seguidas del MDX (mdx.tsx: groupMetrics): una fila que se reparte el ancho. */
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5) var(--space-6);
+}
+
+/* Figuras, diagramas y tablas usan todo el ancho de la columna (4–12). */
+.wide {
+  min-inline-size: 0;
+}
+
+.closing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-6);
+  padding-block-start: var(--space-6);
+  border-block-start: 1px solid var(--line);
+}
+
+@media (min-width: 1024px) {
+  .case {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--grid-gap);
+    row-gap: var(--space-8);
+    align-items: start;
+  }
+
+  .header,
+  .body,
+  .closing {
+    grid-column: 4 / -1;
+  }
+
+  /* El índice ocupa las columnas 1–3 a lo largo de todo el artículo, así su sticky dura toda la página. */
+  .index {
+    grid-column: 1 / span 3;
+    grid-row: 1 / span 3;
+    align-self: stretch;
+  }
+
+  .body {
+    gap: var(--space-9);
+  }
+}

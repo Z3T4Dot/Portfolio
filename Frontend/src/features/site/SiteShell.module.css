@@ -1,0 +1,14 @@
+/* Blueprint 03 §Grid y layout: contenedor de 1200px con gutter fluido; secciones separadas con espacio. */
+.main {
+  display: grid;
+  gap: var(--space-6);
+  align-content: start;
+  max-inline-size: var(--container-max);
+  margin-inline: auto;
+  padding: var(--space-8) var(--gutter) 0;
+}
+
+/* <main> recibe el foco del skip link; no es un control, así que no lleva anillo. */
+.main:focus {
+  outline: none;
+}

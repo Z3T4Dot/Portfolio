@@ -1,0 +1,72 @@
+/* Blueprint 03 §Componentes visuales (FailureModeTable; apilada por fila en móvil), §Tipografía
+   (números tabulares en tablas; secundario a 13px) y §Espaciado (--line solo entre elementos). Las
+   dos formas viven en el HTML; solo una se muestra, así que solo una existe para lectores de pantalla. */
+.table {
+  display: none;
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--step--1);
+  line-height: var(--leading-secondary);
+}
+
+.table th,
+.table td {
+  padding: var(--space-3);
+  border-block-end: 1px solid var(--line);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table thead th {
+  border-block-end-color: var(--line-ui);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.table tbody th {
+  font-weight: 600;
+}
+
+.stack {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+  border-block-start: 1px solid var(--line);
+}
+
+.item:last-child {
+  border-block-end: 1px solid var(--line);
+}
+
+.failure {
+  font-weight: 600;
+}
+
+.fields {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field dt {
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 600;
+  line-height: var(--leading-secondary);
+}
+
+@media (min-width: 768px) {
+  .table {
+    display: table;
+  }
+
+  .stack {
+    display: none;
+  }
+}

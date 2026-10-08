@@ -1,0 +1,21 @@
+/* Blueprint 03 §Componentes visuales (Figure: borde --line, radio --radius-l, fondo --surface; sin
+   sombras decorativas). */
+.figure {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: var(--surface);
+}
+
+.content > * + * {
+  margin-block-start: var(--space-3);
+}
+
+.caption {
+  max-inline-size: var(--measure);
+  color: var(--muted);
+  font-size: var(--step--1);
+  line-height: var(--leading-secondary);
+}

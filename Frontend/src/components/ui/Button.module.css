@@ -1,0 +1,26 @@
+/* Blueprint 03 §Componentes visuales (Button) y §Microinteracciones (botón: cambio de fondo, 120ms;
+   enlace: el subrayado de base.css). Objetivo táctil de 44px en acciones principales. */
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--target-min);
+}
+
+.primary {
+  padding-inline: var(--space-5);
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color var(--duration-press) var(--ease);
+}
+
+.primary:hover {
+  background: var(--accent);
+}
+
+.primary:active {
+  background: var(--ink);
+}

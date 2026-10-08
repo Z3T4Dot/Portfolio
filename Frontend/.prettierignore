@@ -1,0 +1,14 @@
+build
+coverage
+.react-router
+.wrangler
+playwright-report
+test-results
+package-lock.json
+
+# Prettier formatea MDX con la sintaxis de MDX 1 y rompe MDX 3: une `<Section>` con su contenido en
+# una línea y el Markdown de adentro deja de ser bloque (una lista pasa a texto plano).
+*.mdx
+
+# Lo mueve y reescribe la fase del juego (09 §16); no se toca antes.
+src/game/payloads.ts

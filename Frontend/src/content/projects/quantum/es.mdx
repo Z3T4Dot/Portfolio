@@ -1,0 +1,165 @@
+{/* Blueprint 06 (las doce secciones del caso), 05 §Prosa en MDX y 07-current-projects/quantum-erp-rental.md
+    (material sanitizado). Rol, equipo, autoría, estado, incidentes y lecciones: solo redacciones
+    públicas confirmadas por César. Texto fuente; lo revisa César (C5). */}
+
+<Section id="context">
+
+Quantum es la plataforma interna de operaciones de Brandex, una empresa de experiencias y eventos con varias unidades de negocio: alquiler de mobiliario y activos para eventos, custodia de material de marca, personalización, marketplace, servicios y un portal interno para empleados. Las unidades corren sobre la misma plataforma como módulos de negocio declarados en YAML, sin código propio.
+
+La documentación de arquitectura lo resume así: «Quantum no es un ERP. Un ERP gestiona datos. Quantum gestiona operaciones».
+
+El backend tuvo dos generaciones. La primera (V1), entre abril y julio de 2026, en Kotlin y NestJS. La segunda (V2), desde agosto de 2026, en Java 21 y Spring Boot. V1 quedó congelada como referencia.
+
+</Section>
+
+<Section id="problem">
+
+V1 mostró problemas de estabilidad, mantenibilidad y rendimiento. La documentación de arquitectura de V2 describe de dónde venían:
+
+- Era un monolito con otro nombre: el gateway enviaba casi todas las rutas al mismo servicio central.
+- Kafka estaba configurado, pero inactivo. Si el servicio de notificaciones fallaba, el proceso fallaba con él, sin reintento.
+- El nivel de acceso de cada usuario lo decidía el frontend, con un dato que el backend nunca emitía.
+- El portal interno corría aparte, con su propia identidad, moneda, notificaciones y auditoría.
+
+En vez de seguir acumulando complejidad sobre esa base, rediseñé la plataforma como V2: porté a Java la lógica de los motores que ya funcionaban y construí alrededor un SDK y un runtime propios, con una arquitectura modular y documentada.
+
+</Section>
+
+<Section id="role">
+
+Quantum nació como una iniciativa mía. El liderazgo formal del proyecto estuvo a cargo del diseñador de interfaz; yo asumí la dirección técnica y tecnológica en un equipo de tres personas: definí tareas, revisé y audité el código y resolví bloqueos técnicos. Reportábamos a la dirección general.
+
+Diseñé la arquitectura e implementé la plataforma del backend: runtime y SDK, identidad y autorización, gateway, motor de workflows y CI/CD. Fui el único autor del backend durante sus primeros cinco meses e integré después el trabajo del equipo, que sumó el dominio de órdenes y la migración de datos. Documenté la arquitectura en un blueprint y 24 ADRs.
+
+Trabajo con asistencia de IA para proponer alternativas y redactar; las decisiones, su validación y la responsabilidad son mías.
+
+<Metric id="backend-commits" />
+
+</Section>
+
+<Section id="constraints">
+
+- Un equipo de tres personas. Hasta septiembre de 2026, el backend tuvo un solo autor.
+- Un único servidor con Docker Compose y un runner de CI propio.
+- Redis ya corría en producción para limitar peticiones, y eso pesó en no operar además Kafka.
+- Varias unidades de negocio, con necesidades distintas, sobre una misma plataforma.
+
+</Section>
+
+<Section id="architecture">
+
+<Diagram id="platform" />
+
+El gateway es el único punto de entrada. Valida la firma del token, la versión de sesión y el límite de peticiones por tenant; los servicios internos no publican sus puertos.
+
+Detrás está el runtime de la plataforma. Cada petición recorre el mismo pipeline: módulo declarado, motor, capability, contexto, autorización, modelo de ejecución y despacho. El runtime también aloja el motor de workflows.
+
+Diseñé un SDK y un runtime propios para que los motores de negocio no se conocieran entre sí: el runtime resuelve cada petición, aplica la autorización y orquesta la ejecución. Los motores (inventario, tienda, moneda, proyectos, creativo y organización) solo reciben llamadas del runtime.
+
+El servicio de identidad es la fuente de verdad de identidad y autorización, y decide cada permiso (PDP). Los servicios de plataforma, como auditoría, notificaciones y analítica, reciben eventos por Redis Streams. Cada servicio tiene su propia base de datos lógica sobre una instancia de PostgreSQL y aplica sus propias migraciones.
+
+<Metric id="services" /> <Metric id="libraries" /> <Metric id="modules" />
+
+</Section>
+
+<Section id="decisions">
+
+<Decision id="sdk-runtime" />
+
+<Decision id="processes" />
+
+<Decision id="redis-streams" />
+
+<Decision id="server-authz" />
+
+</Section>
+
+<Section id="tradeoffs">
+
+- Elegí Redis Streams para no operar Kafka; el costo es durabilidad: con la configuración revisada, una caída de Redis puede perder los eventos más recientes.
+- Los eventos se publican después de confirmar la operación y en modo best-effort. Si la publicación falla, la operación de negocio sigue y ese evento se pierde: no hay outbox para los eventos de dominio.
+- Los 15 procesos corren en un solo servidor: un fallo o un despliegue quedan aislados por proceso, pero no por máquina.
+- La autorización falla cerrada: si el PDP no responde, nada que requiera permisos funciona.
+
+</Section>
+
+<Section id="security">
+
+Toda operación pasa por la misma autorización, venga del frontend o de un paso de workflow.
+
+<Diagram id="pipeline" />
+
+- Los tokens de acceso son JWT firmados con RS256 y de corta duración; la clave pública se distribuye por un endpoint JWKS. El token lleva una versión de sesión que el gateway valida.
+- Los refresh tokens se guardan como hash y rotan de forma atómica. Si alguien reutiliza uno que ya rotó, se revocan todas sus sesiones y queda un evento de auditoría.
+- Las contraseñas se guardan con Argon2id.
+- El PDP falla cerrado. El PEP usa una caché de decisiones de vida corta; si la caché falla, consulta al PDP: nunca permite ni niega por su cuenta.
+- Cada paso de un workflow pasa por el mismo PEP que una llamada del frontend. Al principio no era así: el spike del motor lo encontró como una vía para saltarse la autorización, y se cerró antes de construir encima.
+- La auditoría es central y se alimenta de eventos. Los webhooks de proveedores se aceptan solo con la firma verificada.
+- Los servicios internos se autentican entre sí con credenciales por servicio. El diseño apuntaba a tokens firmados de corta duración (zero-trust interno), que quedaron pendientes.
+
+</Section>
+
+<Section id="failure-modes">
+
+Solo incluyo fallas cuyo comportamiento está en el código. La columna de detección describe cómo lo nota el propio sistema.
+
+<FailureModes />
+
+</Section>
+
+<Section id="implementation">
+
+### Motor de workflows
+
+El motor de workflows de la plataforma vive dentro del runtime como un paquete propio; no es un servicio aparte. El flujo de negocio construido sobre él es la redención de beneficios del portal interno: reservar stock, congelar saldo, esperar la decisión de un administrador y capturar o liberar. Ningún motor conoce al otro: el workflow es lo único que sabe que la reserva de stock y el saldo congelado pertenecen al mismo pedido.
+
+<Diagram id="workflow" />
+
+- Los workflows se escriben en un DSL en YAML, versionado, que se compila y se valida al cargar: un workflow inválido no se registra.
+- Hay cuatro tipos de paso: `execute`, `condition`, `parallel` y `wait`. `parallel` no es paralelo: encola las ramas y las ejecuta en secuencia.
+- Al llegar a un `wait` por evento, el estado se guarda en Redis, la ejecución queda en espera en PostgreSQL y se registra una suscripción. Los filtros del `wait` se resuelven al suspender, así que solo despierta la ejecución que corresponde; si un filtro resuelve vacío, el paso falla.
+- Si un paso posterior falla y pide compensar, los pasos compensables se deshacen en orden inverso. Un fallo durante la compensación no se reintenta.
+- Un proceso periódico marca como vencidas las ejecuciones que superan su plazo.
+
+Antes de construir encima, un spike mostró que el motor nunca había corrido de punta a punta. Encontró tres bugs: un paso fallido terminaba como completado, el listener de eventos nunca arrancaba y había eventos duplicados. Se corrigieron, y se cerraron los huecos de autorización, correlación y transporte antes de tocar saldo o stock.
+
+<Metric id="engine-rules" /> <Metric id="engine-tests" />
+
+### Diseñado, no implementado
+
+- Tokens firmados de corta duración entre servicios (zero-trust interno). Hoy los servicios se autentican con credenciales por servicio.
+- Los modelos de ejecución SAGA, aprobación humana y decisión con IA: están definidos, pero no tienen estrategia de ejecución. La aprobación humana se modela hoy como un `wait` por evento.
+- Políticas de reintento: el DSL las acepta, pero el ejecutor no las aplica.
+- `wait` por tiempo: suspende la ejecución, pero nada la reanuda.
+- Disparo programado y paralelismo real.
+
+### Entrega
+
+El CI compila y prueba todo el backend en cada push y pull request. El despliegue tiene compuertas: verifica que cada servicio esté en la matriz y en los archivos de Compose, aplica todas las migraciones sobre un PostgreSQL 16 vacío, corre `mvn verify`, construye las 15 imágenes en paralelo, despliega y espera a que cada servicio esté sano. Las pruebas de arquitectura corren en el mismo CI.
+
+Un deploy dejó de levantar. Los 352 tests pasaban porque ninguno tocaba SQL real, y dos migraciones no aplicaban sobre una base vacía. Lo diagnostiqué y agregué una compuerta de CI que aplica todas las migraciones sobre un Postgres limpio. No afectó a usuarios.
+
+En otro despliegue falló una imagen de contenedor de terceros que dejó de estar disponible. La primera vez se cambió de registro. Cuando volvió a pasar, diagnostiqué que el error de autorización no era de permisos sino que el repositorio ya no existía, y eliminé la dependencia espejando la imagen en un registro propio.
+
+<Metric id="migrations" /> <Metric id="tests" />
+
+</Section>
+
+<Section id="result">
+
+Implementado y desplegado. V2 se despliega con el pipeline y sus compuertas, y la redención de beneficios del portal interno quedó implementada de punta a punta sobre el motor de workflows y verificada contra el entorno desplegado. Al momento del traspaso, la plataforma estaba integrada de forma parcial con el ERP y con parte del portal interno. Traspasé el proyecto a finales de septiembre de 2026.
+
+No medí el rendimiento con una metodología reproducible. En operación, V2 fue más estable y respondía mejor que V1, a cambio de un consumo de memoria algo mayor.
+
+</Section>
+
+<Section id="lessons">
+
+V1 me enseñó el costo del acoplamiento. V2 me enseñó que desacoplar no significa necesariamente distribuir todo. Hoy conservaría las fronteras, pero decidiría la distribución en función de las necesidades operacionales.
+
+- **No todo desacoplamiento necesita ser un proceso.** Hoy conservaría las fronteras entre los motores y el Runtime, pero no necesariamente separaría cada motor en un proceso desde el principio. Primero mantendría los límites con un monolito modular y pruebas de arquitectura, y distribuiría los componentes cuando existiera una necesidad real de aislamiento, escalabilidad o despliegue independiente.
+- **Si la migración no se prueba en CI, realmente no está probada.** Los tests pueden estar pasando y aun así tener una falsa sensación de seguridad. Después del incidente de las migraciones, entendí que una base limpia y el proceso real de inicialización también tienen que formar parte de la validación automática. Si el sistema no puede levantar correctamente desde cero en CI, todavía no considero que el despliegue esté realmente validado.
+- **Medir antes de afirmar que algo mejoró.** V2 funcionaba mejor en operación y la diferencia era evidente, pero no establecí una metodología reproducible para comparar V1 y V2. Hoy mediría latencia, errores, consumo y capacidad bajo condiciones comparables antes y después. Una mejora percibida puede ser real, pero sin medición no debería presentarse como un benchmark.
+- **La historia técnica también es parte del producto.** Subir V2 en un único commit de unas 30.000 líneas hizo que se perdiera buena parte de la historia incremental de cómo evolucionó el diseño. Hoy conservaría commits más pequeños y coherentes, de forma que las decisiones arquitectónicas, los cambios y sus motivos puedan reconstruirse desde el historial.
+
+</Section>

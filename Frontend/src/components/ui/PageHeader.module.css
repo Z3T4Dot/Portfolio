@@ -1,0 +1,16 @@
+/* Blueprint 03 §Grid y layout (página estándar): h1 al 125 % de ancho y lede de 60ch como máximo. */
+.header {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.title {
+  max-inline-size: var(--measure-lede);
+}
+
+.lede {
+  max-inline-size: var(--measure-lede);
+  color: var(--muted);
+  font-size: var(--step-1);
+  line-height: var(--leading-secondary);
+}

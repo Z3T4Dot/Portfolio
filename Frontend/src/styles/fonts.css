@@ -1,0 +1,107 @@
+/*
+ * Fuentes autohospedadas (03, 11 §7). Los woff2 salen de los paquetes de Fontsource (versión fija
+ * en package.json) y Vite los copia a dist con hash en el nombre: caché inmutable y font-src 'self'.
+ * Sin Google Fonts en runtime.
+ *
+ * Solo latin y latin-ext (Fontsource trae también vietnamese y cyrillic-ext; no se declaran).
+ * Con unicode-range el navegador descarga latin-ext solo si la página usa uno de sus caracteres.
+ * El español completo (á, é, ñ, ¿, ¡) está en latin.
+ *
+ * Archivo: archivo-*-wdth-*.woff2 es el archivo con los dos ejes. Verificado leyendo la tabla
+ * fvar del woff2 (2026-10-06): wght 100–900 y wdth 62–125. Ojo: archivo-*-wght-*.woff2 trae solo
+ * wght y no sirve para los títulos al 112–125 %.
+ * Pendiente (11 §7): recortar ejes a wdth 100–125 y wght 400–800 con fonttools varLib.instancer y
+ * medir el ahorro. Hoy se sirve el rango completo: latin normal pesa 90 104 bytes.
+ *
+ * Precarga (solo Archivo latin normal, 04): la agrega el shell del router con un import
+ * `@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url`, que resuelve al mismo
+ * archivo con hash que este CSS.
+ */
+
+/* Archivo · normal */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url('@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url('@fontsource-variable/archivo/files/archivo-latin-ext-wdth-normal.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Archivo · itálica (énfasis en la prosa; se descarga solo si una página la usa) */
+@font-face {
+  font-family: 'Archivo';
+  font-style: italic;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url('@fontsource-variable/archivo/files/archivo-latin-wdth-italic.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: italic;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url('@fontsource-variable/archivo/files/archivo-latin-ext-wdth-italic.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/*
+ * Respaldo métrico para que el swap no mueva el layout (CLS, 11 §7). Arial ajustada a Archivo en
+ * su instancia de texto (wght 400, wdth 100). Calculado el 2026-10-06 con las tablas hhea, hmtx,
+ * avar y HVAR del woff2 de Archivo 5.3.0 y de arial.ttf, ponderando por la frecuencia de caracteres
+ * de un texto del blueprint (ES). Si cambia la versión de Archivo, se recalcula.
+ */
+@font-face {
+  font-family: 'Archivo Fallback';
+  src: local('Arial'), local('ArialMT');
+  size-adjust: 98.4%;
+  ascent-override: 89.23%;
+  descent-override: 21.34%;
+  line-gap-override: 0%;
+}
+
+/* Fragment Mono: solo para contenido que de verdad es código (03) */
+@font-face {
+  font-family: 'Fragment Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/fragment-mono/files/fragment-mono-latin-400-normal.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Fragment Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/fragment-mono/files/fragment-mono-latin-ext-400-normal.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}

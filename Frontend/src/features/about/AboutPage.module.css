@@ -1,0 +1,102 @@
+/* Blueprint 03 §Grid y layout (página estándar: contenido en columnas 1–8), §Espaciado (secciones
+   separadas con espacio; líneas --line solo entre elementos de una lista) y §Qué evitar (sin barras de
+   nivel, sin rejillas de tarjetas con sombra, sin metadatos unidos con " · "). */
+.page {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.section {
+  display: grid;
+  align-content: start;
+  gap: var(--space-5);
+}
+
+.facts {
+  display: grid;
+  gap: var(--space-5);
+  max-inline-size: var(--measure);
+}
+
+.facts dt {
+  color: var(--muted);
+  font-size: var(--step--1);
+  line-height: var(--leading-secondary);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.list {
+  display: grid;
+  gap: var(--space-2);
+  padding-inline-start: var(--space-5);
+}
+
+.pillars {
+  display: grid;
+  gap: var(--space-7);
+}
+
+.pillar {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--line);
+}
+
+.evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+
+.label {
+  color: var(--muted);
+}
+
+.links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+
+.principles {
+  display: grid;
+  max-inline-size: var(--measure);
+  padding: 0;
+  list-style: none;
+}
+
+.principles > li {
+  display: grid;
+  gap: var(--space-2);
+  padding-block: var(--space-5);
+  border-block-start: 1px solid var(--line);
+}
+
+.principles > li:last-child {
+  border-block-end: 1px solid var(--line);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .pillars {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-7) var(--grid-gap);
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    gap: var(--space-9);
+  }
+}

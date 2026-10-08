@@ -1,0 +1,7 @@
+/* Blueprint 03 §Componentes visuales (Callout: barra lateral de 2px, sin ícono decorativo). */
+.note {
+  max-inline-size: var(--measure);
+  padding-inline-start: var(--space-4);
+  border-inline-start: 2px solid var(--line-ui);
+  color: var(--muted);
+}

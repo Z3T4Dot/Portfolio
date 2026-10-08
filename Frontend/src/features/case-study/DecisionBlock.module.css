@@ -1,0 +1,50 @@
+/* Blueprint 03 §Componentes visuales (DecisionBlock: sin caja; h3 y lista de definición) y §Espaciado
+   (los bloques se separan con espacio; --line solo entre elementos de una lista). */
+.decision {
+  display: grid;
+  gap: var(--space-4);
+  max-inline-size: var(--measure);
+}
+
+.decision + .decision {
+  padding-block-start: var(--space-6);
+  border-block-start: 1px solid var(--line);
+}
+
+.title {
+  font-size: var(--step-1);
+}
+
+.fields {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.field dt {
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 600;
+  line-height: var(--leading-secondary);
+}
+
+.options {
+  display: grid;
+  gap: var(--space-1);
+  padding-inline-start: var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .field {
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  .field dt {
+    padding-block-start: 0.2em;
+  }
+}

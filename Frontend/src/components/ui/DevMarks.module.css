@@ -1,0 +1,28 @@
+/* Solo en desarrollo (DevMarks.tsx). --warn marca un estado real (borrador o dato pendiente) y va
+   siempre con texto (03 §Color). El aviso sigue el patrón de Callout: barra lateral de 2px. */
+.draft {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--space-2);
+  border: 1px dashed var(--warn);
+  border-radius: var(--radius-s);
+  color: var(--warn);
+  font-size: var(--step--1);
+  font-stretch: var(--width-text);
+  font-weight: 600;
+  line-height: var(--leading-secondary);
+  vertical-align: middle;
+}
+
+.pending {
+  max-inline-size: var(--measure);
+  padding-inline-start: var(--space-4);
+  border-inline-start: 2px solid var(--warn);
+  color: var(--muted);
+  font-size: var(--step--1);
+  line-height: var(--leading-secondary);
+}
+
+.pending strong {
+  color: var(--warn);
+}

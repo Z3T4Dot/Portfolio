@@ -1,0 +1,133 @@
+/* Blueprint 03 §Hero de la Home (nombre en display al 125 %; rol en columnas 1–4 y posicionamiento en
+   5–11 desde 1024px), §Tipografía, §Espaciado (secciones separadas con espacio, no con cajas) y
+   §Componentes visuales (CaseRow: toda la fila es un enlace; hover a --surface-2). */
+.page {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.hero {
+  display: grid;
+  gap: var(--space-7);
+  padding-block: var(--space-6) var(--space-4);
+}
+
+.name {
+  font-size: var(--step-display);
+  font-stretch: var(--width-display);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+}
+
+.line {
+  display: block;
+}
+
+.intro {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.role {
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: var(--leading-secondary);
+}
+
+.positioning {
+  max-inline-size: var(--measure-lede);
+  font-size: var(--step-2);
+  line-height: 1.35;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-6);
+}
+
+.section {
+  display: grid;
+  align-content: start;
+  gap: var(--space-5);
+}
+
+.text {
+  max-inline-size: var(--measure-lede);
+}
+
+.muted {
+  max-inline-size: var(--measure-lede);
+  color: var(--muted);
+}
+
+.rows {
+  display: grid;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-3);
+  border-block-start: 1px solid var(--line);
+  transition: background-color var(--duration-quick) var(--ease);
+}
+
+.row:last-child {
+  border-block-end: 1px solid var(--line);
+}
+
+.row:has(.rowLink:hover) {
+  background: var(--surface-2);
+}
+
+.rowTitle {
+  font-size: var(--step-1);
+}
+
+.rowLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* El área del enlace cubre toda la fila; el foco sigue en el enlace (anillo de base.css). */
+.rowLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@media (min-width: 1024px) {
+  .page {
+    gap: var(--space-9);
+  }
+
+  .hero {
+    padding-block-start: var(--space-8);
+  }
+
+  .intro {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--grid-gap);
+    align-items: start;
+  }
+
+  .role {
+    grid-column: 1 / span 4;
+  }
+
+  .positioning {
+    grid-column: 5 / span 7;
+  }
+}
