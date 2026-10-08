@@ -1,0 +1,5 @@
+.section {
+  margin-block: calc(var(--space) * 2);
+  padding-inline-start: var(--space);
+  border-inline-start: 3px solid var(--accent);
+}

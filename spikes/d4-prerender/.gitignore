@@ -1,0 +1,7 @@
+node_modules/
+build/
+build-spa/
+.react-router/
+.wrangler/
+test-results/
+playwright-report/

@@ -1,0 +1,11 @@
+.board {
+  padding: var(--space);
+  border: 2px dashed var(--accent);
+}
+
+.rules {
+  display: flex;
+  gap: var(--space);
+  padding: 0;
+  list-style: none;
+}

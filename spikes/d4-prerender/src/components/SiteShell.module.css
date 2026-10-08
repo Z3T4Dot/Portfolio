@@ -1,0 +1,40 @@
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+
+.skip:focus {
+  left: var(--space);
+  top: var(--space);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space);
+  border-bottom: 1px solid var(--muted);
+}
+
+.nav ul {
+  display: flex;
+  gap: var(--space);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.main {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: calc(var(--space) * 2) var(--space);
+}
+
+.footer {
+  padding: var(--space);
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-align: center;
+}

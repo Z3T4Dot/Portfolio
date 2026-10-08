@@ -1,0 +1,46 @@
+{
+  "name": "spike-d4-prerender",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Spike de Fase 0 (D4 + CSP + hosting): React Router 8 en modo framework con ssr:false + prerender.",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "react-router dev",
+    "build": "react-router build && node scripts/postbuild.mjs",
+    "typecheck": "react-router typegen && tsc",
+    "lint": "eslint .",
+    "serve:dist": "wrangler pages dev build/client --port 8788 --compatibility-date 2026-10-01",
+    "measure": "node scripts/measure.mjs",
+    "test:e2e": "playwright test",
+    "build:spa": "vite build --config spa-baseline/vite.config.ts",
+    "serve:spa": "wrangler pages dev build-spa --port 8789 --compatibility-date 2026-10-01 --persist-to .wrangler/state-spa",
+    "compare": "node scripts/compare-spa.mjs"
+  },
+  "dependencies": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-router": "8.4.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@mdx-js/rollup": "3.1.1",
+    "@playwright/test": "1.63.0",
+    "@react-router/dev": "8.4.0",
+    "@types/mdx": "2.0.14",
+    "@types/node": "24.19.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "eslint": "10.12.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.13.0",
+    "parse5": "8.0.1",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "8.71.1",
+    "vite": "8.3.3",
+    "wrangler": "4.148.0"
+  }
+}
