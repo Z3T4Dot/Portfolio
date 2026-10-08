@@ -1,0 +1,20 @@
+# Dependencias y builds
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.lighthouseci/
+
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Notas privadas: evidencia interna, rutas de repos de empleadores, datos por confirmar.
+# Nunca se publican.
+.private/
+
+# Sistema
+.DS_Store
+Thumbs.db
