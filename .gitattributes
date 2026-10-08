@@ -1,0 +1,14 @@
+# Saltos de línea LF en todo el repo: Prettier exige LF y el CI corre en Linux. Sin esto, un clon en
+# Windows con core.autocrlf=true convierte a CRLF y `npm run format:check` falla.
+* text=auto eol=lf
+
+# Binarios: sin conversión.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
